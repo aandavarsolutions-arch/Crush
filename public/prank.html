@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>❤️ Crush Love Calculator — Check Compatibility</title>
+
+  <!-- Open Graph & Social Sharing Metadata -->
+  <meta name="description" content="Calculate true love compatibility with your crush! Enter names to get instant percentage results 👀❤️">
+  <meta property="og:title" content="❤️ Crush Love Calculator — Free Compatibility Test">
+  <meta property="og:description" content="Find out how much your crush loves you right now! 👀❤️">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=1200&q=80">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- ======================================================== -->
+  <!-- [AD SLOT 1] ADSTERRA / MONETAG SOCIAL BAR / POPUNDER SCRIPT -->
+  <!-- Paste your header script below this line: -->
+  <!-- ======================================================== -->
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Header Navbar -->
+    <header class="app-header">
+      <a href="/" class="brand-logo">
+        💘 CrushPrank
+      </a>
+      <span class="brand-tag">❤️ Love Test</span>
+    </header>
+
+    <!-- STEP 1: FORM INPUT CARD -->
+    <main class="glass-card" id="prankFormCard">
+      <h1 class="hero-title">
+        ❤️ Crush Love <span class="gradient-text">Calculator</span>
+      </h1>
+      <p class="hero-subtitle">
+        Find out how much your crush loves you! 👀❤️
+      </p>
+
+      <form id="prankForm">
+        <div class="form-group">
+          <label for="visitorName" class="form-label">
+            👤 Your Name
+          </label>
+          <input 
+            type="text" 
+            id="visitorName" 
+            class="form-input" 
+            placeholder="Enter your name" 
+            required
+            maxlength="50"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="crushName" class="form-label">
+            💘 Your Crush Name
+          </label>
+          <input 
+            type="text" 
+            id="crushName" 
+            class="form-input" 
+            placeholder="Enter your crush's name" 
+            required
+            maxlength="50"
+            autocomplete="off"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnCalculate">
+          ❤️ Calculate Love Percentage
+        </button>
+      </form>
+    </main>
+
+    <!-- STEP 2: FAKE CALCULATION ANIMATION CARD (Hidden Initially) -->
+    <section class="glass-card calculator-animation hidden" id="animationCard">
+      <div class="pulse-heart">💘</div>
+      
+      <div class="progress-status-text" id="statusText">
+        🔍 Analysing names...
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-dim);">
+        Please hold on... processing love algorithm ✨
+      </p>
+    </section>
+
+    <!-- STEP 3: PRANK REVEAL CARD (Hidden Initially) -->
+    <section class="glass-card reveal-card hidden" id="revealCard">
+      <h1 class="reveal-title">
+        😂 YOU ARE FOOLED!
+      </h1>
+
+      <div class="reveal-box">
+        <p class="reveal-text">
+          Your crush name <strong id="revealedCrushName" class="highlight-crush">ANU</strong> has been sent to your friend <strong id="revealedCreatorName" class="highlight-creator">A</strong>. 💀
+        </p>
+      </div>
+
+      <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); margin-bottom: 20px;">
+        “Yep... you just exposed your crush 😭”
+      </p>
+
+      <!-- Reaction System -->
+      <div class="reaction-section">
+        <div class="reaction-title">😂 How do you feel?</div>
+        <div class="reaction-buttons">
+          <button class="reaction-btn" data-emoji="😂">😂</button>
+          <button class="reaction-btn" data-emoji="😭">😭</button>
+          <button class="reaction-btn" data-emoji="💀">💀</button>
+          <button class="reaction-btn" data-emoji="❤️">❤️</button>
+          <button class="reaction-btn" data-emoji="😡">😡</button>
+        </div>
+      </div>
+
+      <!-- [AD SLOT 2] HIGH-CTR IN-CONTENT BANNER (Shown upon Prank Reveal) -->
+      <aside class="ad-container" style="margin: 16px 0; background: rgba(0,0,0,0.6);">
+        <span class="ad-label">SPONSORED</span>
+        <div class="ad-placeholder" id="adSlotPrankReveal">
+          <!-- Paste Adsterra / Monetag Native or 300x250 Banner <script> here -->
+          <span>📢 Sponsored Ad (300x250)</span>
+        </div>
+      </aside>
+
+      <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 24px 0;">
+
+      <!-- VIRAL LOOP CTA -->
+      <div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;" class="gradient-text">
+          😈 Now It's Your Turn!
+        </h2>
+        <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px;">
+          Create your own prank link and fool your friends!
+        </p>
+
+        <a href="/" class="btn btn-primary" style="font-size: 1.1rem; padding: 18px 24px;">
+          🔗 Create Your Own Link
+        </a>
+      </div>
+    </section>
+
+    <!-- [AD SLOT 3] BOTTOM BANNER AD CONTAINER -->
+    <aside class="ad-container">
+      <span class="ad-label">SPONSORED AD</span>
+      <div class="ad-placeholder" id="adSlotPrankBottom">
+        <!-- Paste your Adsterra / Monetag Banner <script> here -->
+        <span>📢 Sponsor Advertisement Space (300x250)</span>
+      </div>
+    </aside>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-links">
+        <a href="/privacy" class="footer-link">Privacy Policy</a>
+        <span>•</span>
+        <a href="/terms" class="footer-link">Terms of Service</a>
+        <span>•</span>
+        <a href="/about" class="footer-link">About / Contact</a>
+      </div>
+      <p>© 2026 CrushPrank — For Entertainment Purposes Only.</p>
+    </footer>
+
+  </div>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Scripts -->
+  <script src="/js/app.js"></script>
+  <script src="/js/prank.js"></script>
+</body>
+</html>
