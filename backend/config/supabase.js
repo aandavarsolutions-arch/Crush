@@ -56,152 +56,177 @@ function saveLocalDb() {
 const db = {
   async createLink({ uniqueCode, creatorName, secretKey }) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('links')
-        .insert([
-          {
-            unique_code: uniqueCode,
-            creator_name: creatorName,
-            secret_key: secretKey,
-            open_count: 0,
-            completed_count: 0
-          }
-        ])
-        .select()
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('links')
+          .insert([
+            {
+              unique_code: uniqueCode,
+              creator_name: creatorName,
+              secret_key: secretKey,
+              open_count: 0,
+              completed_count: 0
+            }
+          ])
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
-    } else {
-      const newLink = {
-        id: crypto.randomUUID(),
-        unique_code: uniqueCode,
-        creator_name: creatorName,
-        secret_key: secretKey,
-        open_count: 0,
-        completed_count: 0,
-        created_at: new Date().toISOString()
-      };
-      localDb.links.push(newLink);
-      saveLocalDb();
-      return newLink;
+        if (error) {
+          console.error('⚠️ Supabase error in createLink:', error.message || error);
+          throw error;
+        }
+        return data;
+      } catch (err) {
+        console.warn('⚠️ Falling back to local storage due to Supabase error:', err.message);
+      }
     }
+    
+    // Fallback or Local DB
+    const newLink = {
+      id: crypto.randomUUID(),
+      unique_code: uniqueCode,
+      creator_name: creatorName,
+      secret_key: secretKey,
+      open_count: 0,
+      completed_count: 0,
+      created_at: new Date().toISOString()
+    };
+    localDb.links.push(newLink);
+    saveLocalDb();
+    return newLink;
   },
 
   async getLinkByCode(code) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('links')
-        .select('*')
-        .eq('unique_code', code)
-        .single();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    } else {
-      return localDb.links.find(l => l.unique_code === code) || null;
+      try {
+        const { data, error } = await supabase
+          .from('links')
+          .select('*')
+          .eq('unique_code', code)
+          .single();
+        if (error && error.code !== 'PGRST116') {
+          console.warn('⚠️ Supabase error in getLinkByCode:', error.message);
+        } else if (data) {
+          return data;
+        }
+      } catch (err) {
+        console.warn('⚠️ Supabase fetch exception:', err.message);
+      }
     }
+    return localDb.links.find(l => l.unique_code === code) || null;
   },
 
   async incrementOpenCount(code) {
     if (isSupabaseConfigured) {
-      // Fetch current link
-      const link = await this.getLinkByCode(code);
-      if (!link) return null;
-      const { data, error } = await supabase
-        .from('links')
-        .update({ open_count: (link.open_count || 0) + 1 })
-        .eq('id', link.id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    } else {
-      const link = localDb.links.find(l => l.unique_code === code);
-      if (link) {
-        link.open_count = (link.open_count || 0) + 1;
-        saveLocalDb();
+      try {
+        const link = await this.getLinkByCode(code);
+        if (link && link.id) {
+          const { data, error } = await supabase
+            .from('links')
+            .update({ open_count: (link.open_count || 0) + 1 })
+            .eq('id', link.id)
+            .select()
+            .single();
+          if (!error && data) return data;
+        }
+      } catch (err) {
+        console.warn('⚠️ incrementOpenCount fallback:', err.message);
       }
-      return link;
     }
+    const link = localDb.links.find(l => l.unique_code === code);
+    if (link) {
+      link.open_count = (link.open_count || 0) + 1;
+      saveLocalDb();
+    }
+    return link;
   },
 
   async addSubmission({ linkId, visitorName, crushName }) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('submissions')
-        .insert([
-          {
-            link_id: linkId,
-            visitor_name: visitorName,
-            crush_name: crushName,
-            reaction: '😂'
-          }
-        ])
-        .select()
-        .single();
-      if (error) throw error;
+      try {
+        const { data, error } = await supabase
+          .from('submissions')
+          .insert([
+            {
+              link_id: linkId,
+              visitor_name: visitorName,
+              crush_name: crushName,
+              reaction: '😂'
+            }
+          ])
+          .select()
+          .single();
 
-      // Increment completed count on links table
-      const { data: linkData } = await supabase.from('links').select('completed_count').eq('id', linkId).single();
-      if (linkData) {
-        await supabase.from('links').update({ completed_count: (linkData.completed_count || 0) + 1 }).eq('id', linkId);
+        if (!error && data) {
+          try {
+            const { data: linkData } = await supabase.from('links').select('completed_count').eq('id', linkId).single();
+            if (linkData) {
+              await supabase.from('links').update({ completed_count: (linkData.completed_count || 0) + 1 }).eq('id', linkId);
+            }
+          } catch (e) {}
+          return data;
+        }
+      } catch (err) {
+        console.warn('⚠️ addSubmission fallback to local:', err.message);
       }
-
-      return data;
-    } else {
-      const newSubmission = {
-        id: crypto.randomUUID(),
-        link_id: linkId,
-        visitor_name: visitorName,
-        crush_name: crushName,
-        reaction: '😂',
-        created_at: new Date().toISOString()
-      };
-      localDb.submissions.push(newSubmission);
-
-      const link = localDb.links.find(l => l.id === linkId);
-      if (link) {
-        link.completed_count = (link.completed_count || 0) + 1;
-      }
-      saveLocalDb();
-      return newSubmission;
     }
+    
+    const newSubmission = {
+      id: crypto.randomUUID(),
+      link_id: linkId,
+      visitor_name: visitorName,
+      crush_name: crushName,
+      reaction: '😂',
+      created_at: new Date().toISOString()
+    };
+    localDb.submissions.push(newSubmission);
+
+    const link = localDb.links.find(l => l.id === linkId);
+    if (link) {
+      link.completed_count = (link.completed_count || 0) + 1;
+    }
+    saveLocalDb();
+    return newSubmission;
   },
 
   async updateReaction(submissionId, reaction) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('submissions')
-        .update({ reaction })
-        .eq('id', submissionId)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
-    } else {
-      const sub = localDb.submissions.find(s => s.id === submissionId);
-      if (sub) {
-        sub.reaction = reaction;
-        saveLocalDb();
+      try {
+        const { data, error } = await supabase
+          .from('submissions')
+          .update({ reaction })
+          .eq('id', submissionId)
+          .select()
+          .single();
+        if (!error && data) return data;
+      } catch (err) {
+        console.warn('⚠️ updateReaction fallback:', err.message);
       }
-      return sub;
     }
+    const sub = localDb.submissions.find(s => s.id === submissionId);
+    if (sub) {
+      sub.reaction = reaction;
+      saveLocalDb();
+    }
+    return sub;
   },
 
   async getSubmissionsByLinkId(linkId) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('submissions')
-        .select('*')
-        .eq('link_id', linkId)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data || [];
-    } else {
-      return localDb.submissions
-        .filter(s => s.link_id === linkId)
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      try {
+        const { data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('link_id', linkId)
+          .order('created_at', { ascending: false });
+        if (!error && data) return data;
+      } catch (err) {
+        console.warn('⚠️ getSubmissionsByLinkId fallback:', err.message);
+      }
     }
+    return localDb.submissions
+      .filter(s => s.link_id === linkId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 };
 
