@@ -249,5 +249,7 @@ const db = {
 
 module.exports = {
   db,
-  isSupabaseConfigured
+  supabase,
+  isSupabaseConfigured,
+  SUPABASE_URL
 };

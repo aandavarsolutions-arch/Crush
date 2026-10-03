@@ -203,3 +203,45 @@ exports.getLinkStats = async (req, res) => {
     res.status(500).json({ success: false, error: 'Failed to fetch statistics.' });
   }
 };
+
+exports.healthCheckDb = async (req, res) => {
+  try {
+    const { supabase, isSupabaseConfigured, SUPABASE_URL } = require('../config/supabase');
+    
+    let supabaseStatus = 'Not configured';
+    let testLinks = null;
+    let testSubmissions = null;
+    let errorMessage = null;
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data: linksData, error: linksErr } = await supabase.from('links').select('id, unique_code, creator_name').limit(5);
+        const { data: subsData, error: subsErr } = await supabase.from('submissions').select('id, creator_name, visitor_name, crush_name').limit(5);
+
+        if (linksErr || subsErr) {
+          errorMessage = { linksErr, subsErr };
+          supabaseStatus = 'Connected but Query Error';
+        } else {
+          supabaseStatus = 'Connected and Working 100%';
+          testLinks = linksData;
+          testSubmissions = subsData;
+        }
+      } catch (err) {
+        errorMessage = err.message;
+        supabaseStatus = 'Exception during query';
+      }
+    }
+
+    res.json({
+      isSupabaseConfigured,
+      supabaseUrlSet: SUPABASE_URL ? 'YES' : 'NO',
+      supabaseStatus,
+      errorMessage,
+      testLinks,
+      testSubmissions
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

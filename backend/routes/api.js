@@ -22,4 +22,7 @@ router.post('/reaction', sanitizeInput, prankController.updateReaction);
 // Creator statistics view
 router.get('/stats/:code', prankController.getLinkStats);
 
+// Database Health check
+router.get('/health-db', prankController.healthCheckDb);
+
 module.exports = router;
