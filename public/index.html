@@ -34,6 +34,21 @@
       <span class="brand-tag">🔥 Viral Game</span>
     </header>
 
+    <!-- Previous Active Link Banner (Auto-detected if user previously created a link) -->
+    <section class="glass-card hidden" id="previousLinkBanner" style="border: 1.5px solid var(--primary-pink); padding: 18px; text-align: center; background: rgba(255, 77, 109, 0.12);">
+      <p style="font-weight: 800; margin-bottom: 10px; font-size: 1rem; color: #fff;">
+        👀 You have an active prank link running!
+      </p>
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <a href="#" id="bannerViewStats" class="btn btn-primary" style="padding: 12px 20px; font-size: 0.95rem; width: auto;">
+          📊 View Captured Results
+        </a>
+        <button id="bannerCopyLink" class="btn btn-secondary" style="padding: 12px 20px; font-size: 0.95rem; width: auto;">
+          📋 Copy Prank Link
+        </button>
+      </div>
+    </section>
+
     <!-- Main Creation Card -->
     <main class="glass-card" id="creationCard">
       <h1 class="hero-title">

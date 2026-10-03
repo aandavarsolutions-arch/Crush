@@ -14,6 +14,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnShareWhatsApp = document.getElementById('btnShareWhatsApp');
   const btnNativeShare = document.getElementById('btnNativeShare');
 
+  const previousLinkBanner = document.getElementById('previousLinkBanner');
+  const bannerViewStats = document.getElementById('bannerViewStats');
+  const bannerCopyLink = document.getElementById('bannerCopyLink');
+
+  // Auto-detect previously created prank link on this browser
+  const savedStatsUrl = localStorage.getItem('my_prank_stats_url');
+  const savedShareUrl = localStorage.getItem('my_prank_share_url');
+
+  if (savedStatsUrl && previousLinkBanner) {
+    previousLinkBanner.classList.remove('hidden');
+    if (bannerViewStats) {
+      bannerViewStats.href = savedStatsUrl;
+    }
+    if (bannerCopyLink && savedShareUrl) {
+      bannerCopyLink.addEventListener('click', () => {
+        copyToClipboard(savedShareUrl, '📋 Prank link copied!');
+      });
+    }
+  }
+
   let currentShareData = null;
 
   if (createLinkForm) {
@@ -48,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('my_prank_code', currentShareData.code);
           localStorage.setItem('my_prank_key', currentShareData.secretKey);
           localStorage.setItem('my_prank_stats_url', currentShareData.statsUrl);
+          localStorage.setItem('my_prank_share_url', currentShareData.shareUrl);
 
           // Transition UI cards
           creationCard.classList.add('hidden');
