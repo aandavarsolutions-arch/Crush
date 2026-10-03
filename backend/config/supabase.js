@@ -5,18 +5,30 @@ const crypto = require('crypto');
 
 require('dotenv').config();
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+let rawUrl = (process.env.SUPABASE_URL || '').trim();
+// Auto-fix if user provided Dashboard URL instead of Project API URL
+if (rawUrl.includes('supabase.com/dashboard/project/')) {
+  const parts = rawUrl.split('supabase.com/dashboard/project/');
+  const projectId = parts[1].split('/')[0].split('?')[0];
+  rawUrl = `https://${projectId}.supabase.co`;
+} else if (rawUrl && !rawUrl.startsWith('http')) {
+  rawUrl = `https://${rawUrl}.supabase.co`;
+}
+
+const SUPABASE_URL = rawUrl;
+const SUPABASE_ANON_KEY = (process.env.SUPABASE_ANON_KEY || '').trim();
+const SUPABASE_SERVICE_ROLE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY).trim();
 
 let supabase = null;
 let isSupabaseConfigured = false;
 
-if (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL !== 'https://your-project.supabase.co') {
+if (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL !== 'https://your-project.supabase.co' && !SUPABASE_URL.includes('your-project')) {
   try {
-    supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false }
+    });
     isSupabaseConfigured = true;
-    console.log('✅ Supabase PostgreSQL client initialized.');
+    console.log(`✅ Supabase PostgreSQL client initialized at ${SUPABASE_URL}`);
   } catch (err) {
     console.warn('⚠️ Could not initialize Supabase client:', err.message);
   }

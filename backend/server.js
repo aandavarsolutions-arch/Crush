@@ -10,6 +10,9 @@ const pageRoutes = require('./routes/pages');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render / Cloud hosting
+app.set('trust proxy', 1);
+
 // Middleware configuration
 app.use(helmet({
   contentSecurityPolicy: false // Allows inline scripts for confetti, dynamic share APIs, and ads
