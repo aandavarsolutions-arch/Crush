@@ -172,12 +172,7 @@ const db = {
 
         if (error) {
           console.error('⚠️ Supabase addSubmission error:', error.message || error);
-          const { data: retryData, error: retryErr } = await supabase
-            .from('submissions')
-            .insert([{ link_id: linkId, visitor_name: visitorName, crush_name: crushName, reaction: '😂' }])
-            .select()
-            .single();
-          if (!retryErr && retryData) return retryData;
+          throw error;
         } else if (data) {
           try {
             const { data: linkData } = await supabase.from('links').select('completed_count').eq('id', linkId).single();
