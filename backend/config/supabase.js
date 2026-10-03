@@ -156,21 +156,29 @@ const db = {
   async addSubmission({ linkId, creatorName, visitorName, crushName }) {
     if (isSupabaseConfigured) {
       try {
+        const payload = {
+          link_id: linkId,
+          creator_name: String(creatorName || ''),
+          visitor_name: visitorName,
+          crush_name: crushName,
+          reaction: '😂'
+        };
+
         const { data, error } = await supabase
           .from('submissions')
-          .insert([
-            {
-              link_id: linkId,
-              creator_name: creatorName || '',
-              visitor_name: visitorName,
-              crush_name: crushName,
-              reaction: '😂'
-            }
-          ])
+          .insert([payload])
           .select()
           .single();
 
-        if (!error && data) {
+        if (error) {
+          console.error('⚠️ Supabase addSubmission error:', error.message || error);
+          const { data: retryData, error: retryErr } = await supabase
+            .from('submissions')
+            .insert([{ link_id: linkId, visitor_name: visitorName, crush_name: crushName, reaction: '😂' }])
+            .select()
+            .single();
+          if (!retryErr && retryData) return retryData;
+        } else if (data) {
           try {
             const { data: linkData } = await supabase.from('links').select('completed_count').eq('id', linkId).single();
             if (linkData) {
@@ -178,17 +186,9 @@ const db = {
             }
           } catch (e) {}
           return data;
-        } else if (error) {
-          // If creator_name column not added yet, retry without creator_name
-          const { data: retryData, error: retryError } = await supabase
-            .from('submissions')
-            .insert([{ link_id: linkId, visitor_name: visitorName, crush_name: crushName, reaction: '😂' }])
-            .select()
-            .single();
-          if (!retryError && retryData) return retryData;
         }
       } catch (err) {
-        console.warn('⚠️ addSubmission fallback to local:', err.message);
+        console.warn('⚠️ addSubmission exception:', err.message);
       }
     }
     
