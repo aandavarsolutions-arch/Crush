@@ -153,7 +153,7 @@ const db = {
     return link;
   },
 
-  async addSubmission({ linkId, visitorName, crushName }) {
+  async addSubmission({ linkId, creatorName, visitorName, crushName }) {
     if (isSupabaseConfigured) {
       try {
         const { data, error } = await supabase
@@ -161,6 +161,7 @@ const db = {
           .insert([
             {
               link_id: linkId,
+              creator_name: creatorName || '',
               visitor_name: visitorName,
               crush_name: crushName,
               reaction: '😂'
@@ -177,6 +178,14 @@ const db = {
             }
           } catch (e) {}
           return data;
+        } else if (error) {
+          // If creator_name column not added yet, retry without creator_name
+          const { data: retryData, error: retryError } = await supabase
+            .from('submissions')
+            .insert([{ link_id: linkId, visitor_name: visitorName, crush_name: crushName, reaction: '😂' }])
+            .select()
+            .single();
+          if (!retryError && retryData) return retryData;
         }
       } catch (err) {
         console.warn('⚠️ addSubmission fallback to local:', err.message);
@@ -186,6 +195,7 @@ const db = {
     const newSubmission = {
       id: crypto.randomUUID(),
       link_id: linkId,
+      creator_name: creatorName || '',
       visitor_name: visitorName,
       crush_name: crushName,
       reaction: '😂',

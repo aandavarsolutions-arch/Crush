@@ -108,6 +108,7 @@ exports.submitPrank = async (req, res) => {
 
     const submission = await db.addSubmission({
       linkId: link.id,
+      creatorName: link.creator_name,
       visitorName: cleanVisitorName,
       crushName: cleanCrushName
     });

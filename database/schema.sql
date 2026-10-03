@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS links (
 CREATE TABLE IF NOT EXISTS submissions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   link_id UUID REFERENCES links(id) ON DELETE CASCADE,
+  creator_name VARCHAR(60),
   visitor_name VARCHAR(60) NOT NULL,
   crush_name VARCHAR(60) NOT NULL,
   reaction VARCHAR(10) DEFAULT '😂',
